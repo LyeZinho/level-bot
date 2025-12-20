@@ -1,0 +1,36 @@
+{
+  "name": "level-bot",
+  "version": "1.0.0",
+  "description": "Bot Discord com sistema de níveis, ranking e perfis",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "deploy": "node src/deploy-commands.js",
+    "migrate": "node scripts/migrate-economy.js",
+    "migrate:all": "node scripts/migrate-all.js",
+    "migrate:boosts": "node scripts/migrate-boosts.js",
+    "migrate:vips": "node scripts/migrate-vips.js",
+    "migrate:badges": "node scripts/migrate-badges.js",
+    "seed:badges": "node scripts/seed-badges.js",
+    "migrate:hidden": "node scripts/migrate-hidden-items.js",
+    "seed": "node scripts/seed-shop.js",
+    "test:economy": "node scripts/test-economy.js",
+    "fix:vip-tier": "node scripts/fix-vip-tier.js",
+    "backup": "node scripts/backup-database.js backup",
+    "backup:list": "node scripts/backup-database.js list",
+    "backup:test": "node scripts/backup-database.js test",
+    "restore": "node scripts/backup-database.js restore",
+    "restore:latest": "node scripts/restore-latest-backup.js"
+  },
+  "keywords": ["discord", "bot", "levels", "ranking"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "pg": "^8.11.3",
+    "sharp": "^0.32.1",
+    "dotenv": "^16.3.1"
+  }
+}

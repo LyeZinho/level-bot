@@ -1,0 +1,23 @@
+{
+  "events": [
+    {
+      "event_id": "natal_2025",
+      "name": "Natal 2025",
+      "description": "Evento especial de Natal - Reaja para ganhar a badge exclusiva!",
+      "start_date": "2025-12-01T00:00:00.000Z",
+      "end_date": "2025-12-31T23:59:59.999Z",
+      "trigger_chance": 0.06,
+      "message": "🎄✨ **Uma estrela brilhante apareceu!** ✨🎄\nReaja com 🎄 nos próximos 30 segundos para ganhar a badge de Natal 2025!",
+      "reaction_emoji": "🎄",
+      "error_message": "⏰ Tempo esgotado! A estrela desapareceu...",
+      "reaction_timeout": 30000,
+      "rewards": {
+        "badge_name": "Natal 2025",
+        "items": [],
+        "coins": 100
+      },
+      "active": true,
+      "cooldown_per_user": 3600000
+    }
+  ]
+}
