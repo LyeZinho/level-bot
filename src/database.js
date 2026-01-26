@@ -137,11 +137,14 @@ export async function addMessageXP(userId, username, guildId, xpGain) {
   const newCoinsFromXp = Math.floor(newXP / 100);
   const coinsGained = Math.floor((newCoinsFromXp - oldCoinsFromXp) * multiplier);
   
+  // Se os coins que forem acima de 25 (devido a boosts), limitar a 25
+  const limitedCoinsGained = Math.min(coinsGained, 25);
+
   await pool.query(
     `UPDATE users 
      SET xp = xp + $1, level = $2, messages = messages + 1, last_message_at = $3, coins = coins + $4
      WHERE user_id = $5 AND guild_id = $6`,
-    [finalXpGain, newLevel, now, coinsGained, userId, guildId]
+    [finalXpGain, newLevel, now, limitedCoinsGained, userId, guildId]
   );
   
   return {
@@ -536,13 +539,13 @@ export async function useItem(userId, guildId, itemId) {
     }
     // XP Boosts (duração: 1 hora = 60 minutos)
     else if (item.name.includes('XP Boost 2x')) {
-      const boost = await addBoost(userId, guildId, 'xp_boost', 2, 60);
+      const boost = await addBoost(userId, guildId, 'xp_boost', 0.2, 60);
       effect = { type: 'boost', ...boost };
     } else if (item.name.includes('XP Boost 3x')) {
-      const boost = await addBoost(userId, guildId, 'xp_boost', 3, 60);
+      const boost = await addBoost(userId, guildId, 'xp_boost', 0.3, 60);
       effect = { type: 'boost', ...boost };
     } else if (item.name.includes('XP Boost 5x')) {
-      const boost = await addBoost(userId, guildId, 'xp_boost', 5, 60);
+      const boost = await addBoost(userId, guildId, 'xp_boost', 0.5, 60);
       effect = { type: 'boost', ...boost };
     }
     // Pacotes de Experiência

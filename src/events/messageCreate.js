@@ -70,7 +70,7 @@ export default {
       
       // Adicionar informação de XP ganho se houver boost
       if (result.multiplier > 1) {
-        notification += `\n⚡ **Boost ${result.multiplier}x ativo!** (+${result.xpGained} XP)`;
+        notification += `\n⚡ **Boost ativo!** (+${result.xpGained} XP)`;
       }
       
       message.channel.send(notification);
