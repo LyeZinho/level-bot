@@ -15,6 +15,7 @@ dotenv.config();
  * - Lockfile para evitar execuções concorrentes (./data/backups/backup.lock)
  * - Timeouts configuráveis (env: BACKUP_COMMAND_TIMEOUT_MS)
  * - Nome do container Docker configurável via DOCKER_PG_CONTAINER
+ * - Auto-restore via env: AUTO_RESTORE_BACKUP=nome_do_backup.sql.gz
  */
 
 const DB_HOST = process.env.DB_HOST || 'localhost';
@@ -30,7 +31,8 @@ const BACKUPS_KEEP = parseInt(process.env.BACKUPS_KEEP || '7', 10);
 const MAX_RETRIES = parseInt(process.env.BACKUP_MAX_RETRIES || '3', 10);
 const RETRY_BASE_MS = parseInt(process.env.BACKUP_RETRY_BASE_MS || '2000', 10);
 const DOCKER_PG_CONTAINER = process.env.DOCKER_PG_CONTAINER || 'levelbot-postgres';
-const COMMAND_TIMEOUT_MS = parseInt(process.env.BACKUP_COMMAND_TIMEOUT_MS || '120000', 10); // timeout padrão (ms)
+const COMMAND_TIMEOUT_MS = parseInt(process.env.BACKUP_COMMAND_TIMEOUT_MS || '120000', 10);
+const AUTO_RESTORE_BACKUP = process.env.AUTO_RESTORE_BACKUP || null; // timeout padrão (ms)
 
 
 // Criar diretórios se não existirem
@@ -439,8 +441,27 @@ process.on('SIGINT', () => { log('Interrompido (SIGINT). Limpando lockfile...', 
 process.on('SIGTERM', () => { log('Recebido SIGTERM. Limpando lockfile...', 'warning'); releaseLock(null); process.exit(143); });
 process.on('exit', () => { releaseLock(null); });
 
+// Auto-restore se variável de ambiente estiver definida
+async function checkAutoRestore() {
+  if (AUTO_RESTORE_BACKUP) {
+    ensureDirectories();
+    const backupPath = path.join(BACKUP_DIR, AUTO_RESTORE_BACKUP);
+    
+    if (!fs.existsSync(backupPath)) {
+      log(`❌ Arquivo de backup não encontrado: ${backupPath}`, 'error');
+      process.exit(1);
+    }
+    
+    log(`🔄 AUTO-RESTORE: Restaurando de ${AUTO_RESTORE_BACKUP}...`, 'info');
+    await restoreDatabase(backupPath);
+    process.exit(0);
+  }
+}
+
 // Executar
-interactiveMenu().catch(error => {
+checkAutoRestore().then(() => {
+  return interactiveMenu();
+}).catch(error => {
   log(`Erro fatal: ${error.message}`, 'error');
   releaseLock(null);
   process.exit(1);
