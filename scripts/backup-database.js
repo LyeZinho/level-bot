@@ -254,9 +254,21 @@ async function restoreDatabase(backupPath) {
     // Ler o arquivo SQL
     const sqlData = fs.readFileSync(sqlFile, 'utf-8');
     
-    // Restaurar usando psql
+    // Restaurar usando psql - local ou via docker
     log(`📥 Restaurando dados na database...`);
-    const restoreCommand = `PGPASSWORD="${DB_PASSWORD}" psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME}`;
+    
+    let restoreCommand;
+    let useDocker = false;
+    
+    if (commandExists('psql')) {
+      restoreCommand = `PGPASSWORD="${DB_PASSWORD}" psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME}`;
+    } else if (commandExists('docker') && dockerContainerExists(DOCKER_PG_CONTAINER)) {
+      restoreCommand = `docker exec -i ${DOCKER_PG_CONTAINER} sh -c 'PGPASSWORD="${DB_PASSWORD}" psql -U ${DB_USER} -d ${DB_NAME}'`;
+      useDocker = true;
+      log('psql não encontrado localmente — usando docker exec', 'info');
+    } else {
+      throw new Error('psql não disponível localmente nem via docker');
+    }
     
     return new Promise((resolve, reject) => {
       const psqlProcess = spawn('bash', ['-c', restoreCommand], {
