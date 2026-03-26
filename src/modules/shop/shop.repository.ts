@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { db } from '@/database/db';
 import { items } from '@/database/schema';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class ShopRepository {
@@ -10,7 +11,7 @@ export class ShopRepository {
 
   async getItemById(id: number) {
     return db.query.items.findFirst({
-      where: (items as any).id === id,
+      where: eq(items.id, id),
     });
   }
 

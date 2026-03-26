@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InventoryRepository } from './inventory.repository';
 import { RedisService } from '@/redis/redis.service';
-import { EconomyService } from '../economy/economy.service';
+import { EconomyRepository } from '../economy/economy.repository';
 import { BuyItemDto } from './dto/buy-item.dto';
 import { UseItemDto } from './dto/use-item.dto';
 import { GetInventoryDto } from './dto/get-inventory.dto';
@@ -14,7 +14,7 @@ export class InventoryService {
   constructor(
     private inventoryRepository: InventoryRepository,
     private redisService: RedisService,
-    private economyService: EconomyService,
+    private economyRepository: EconomyRepository,
   ) {}
 
   async buyItem(dto: BuyItemDto) {
@@ -25,7 +25,7 @@ export class InventoryService {
     if (!userData) throw new Error('Usuário não encontrado');
 
     const item = await db.query.items.findFirst({
-      where: (items as any).id === dto.itemId,
+      where: eq(items.id, dto.itemId),
     });
 
     if (!item) throw new Error('Item não encontrado');
@@ -33,7 +33,7 @@ export class InventoryService {
     const totalCost = item.price * dto.quantity;
 
     // Deduct coins
-    await this.economyService.removeCoins(userData.id, dto.guildId, totalCost);
+    await this.economyRepository.removeCoins(userData.id, dto.guildId, totalCost);
 
     // Add to inventory
     const result = await this.inventoryRepository.addItem(userData.id, dto.itemId, dto.quantity);

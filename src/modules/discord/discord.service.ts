@@ -42,18 +42,24 @@ export class DiscordService implements OnModuleInit {
   }
 
   async registerSlashCommands(commands: any[]) {
-    const rest = new REST({ version: '10' }).setToken(
-      this.configService.get<string>('DISCORD_TOKEN'),
-    );
+    const token = this.configService.get<string>('DISCORD_TOKEN');
+    if (!token) {
+      throw new Error('DISCORD_TOKEN não configurado');
+    }
+
+    const rest = new REST({ version: '10' }).setToken(token);
 
     try {
       console.log('🔄 Registrando slash commands...');
       const guildId = this.configService.get<string>('GUILD_ID');
+      const clientId = this.configService.get<string>('CLIENT_ID');
+      
+      if (!guildId || !clientId) {
+        throw new Error('GUILD_ID ou CLIENT_ID não configurado');
+      }
+
       await rest.put(
-        Routes.applicationGuildCommands(
-          this.configService.get<string>('CLIENT_ID'),
-          guildId,
-        ),
+        Routes.applicationGuildCommands(clientId, guildId),
         { body: commands },
       );
       console.log(`✅ ${commands.length} slash commands registrados`);

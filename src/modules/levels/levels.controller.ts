@@ -51,7 +51,7 @@ export class LevelsController implements OnModuleInit {
     const client = this.discordService.getClient();
 
     client.on('messageCreate', async (message) => {
-      if (message.author.bot || !message.guild) return;
+      if (message.author.bot || !message.guild || !message.guildId) return;
 
       try {
         await this.levelsService.incrementMessageCount(
