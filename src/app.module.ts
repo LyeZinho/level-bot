@@ -5,6 +5,7 @@ import { LevelsModule } from './modules/levels/levels.module';
 import { EconomyModule } from './modules/economy/economy.module';
 import { ShopModule } from './modules/shop/shop.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { MissionsModule } from './modules/missions/missions.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { InventoryModule } from './modules/inventory/inventory.module';
     EconomyModule,
     ShopModule,
     InventoryModule,
+    MissionsModule,
   ],
 })
 export class AppModule {}
