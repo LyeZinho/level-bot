@@ -2,11 +2,13 @@
   "name": "level-bot",
   "version": "1.0.0",
   "description": "Bot Discord com sistema de níveis, ranking e perfis",
-  "main": "src/index.js",
-  "type": "module",
+  "main": "dist/main.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
+    "build": "nest build",
+    "start": "node dist/main",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "dev": "npm run start:dev",
     "deploy": "node src/deploy-commands.js",
     "migrate": "node scripts/migrate-economy.js",
     "migrate:all": "node scripts/migrate-all.js",
@@ -38,5 +40,11 @@
     "dotenv": "^16.3.1",
     "pg": "^8.11.3",
     "sharp": "^0.32.1"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
+    "@types/node": "^25.5.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^6.0.2"
   }
 }
