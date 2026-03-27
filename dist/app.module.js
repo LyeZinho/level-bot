@@ -16,12 +16,13 @@ const economy_module_1 = require("./economy/economy.module");
 const vip_module_1 = require("./vip/vip.module");
 const badges_module_1 = require("./badges/badges.module");
 const seasonal_module_1 = require("./seasonal/seasonal.module");
+const utils_module_1 = require("./utils/utils.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_module_1.ConfigModule, database_module_1.DatabaseModule, cache_module_1.CacheModule, leveling_module_1.LevelingModule, economy_module_1.EconomyModule, vip_module_1.VipModule, badges_module_1.BadgesModule, seasonal_module_1.SeasonalModule],
+        imports: [config_module_1.ConfigModule, database_module_1.DatabaseModule, cache_module_1.CacheModule, leveling_module_1.LevelingModule, economy_module_1.EconomyModule, vip_module_1.VipModule, badges_module_1.BadgesModule, seasonal_module_1.SeasonalModule, utils_module_1.UtilsModule],
         controllers: [],
         providers: [],
     })

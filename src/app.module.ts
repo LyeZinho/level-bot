@@ -7,9 +7,10 @@ import { EconomyModule } from './economy/economy.module';
 import { VipModule } from './vip/vip.module';
 import { BadgesModule } from './badges/badges.module';
 import { SeasonalModule } from './seasonal/seasonal.module';
+import { UtilsModule } from './utils/utils.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, CacheModule, LevelingModule, EconomyModule, VipModule, BadgesModule, SeasonalModule],
+  imports: [ConfigModule, DatabaseModule, CacheModule, LevelingModule, EconomyModule, VipModule, BadgesModule, SeasonalModule, UtilsModule],
   controllers: [],
   providers: [],
 })
