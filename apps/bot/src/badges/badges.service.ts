@@ -52,7 +52,7 @@ export class BadgesService {
   }
 
   async checkRankBadge(userId: string, guildId: string, rank: number): Promise<boolean> {
-    let badgeName = null;
+    let badgeName: string | null = null;
 
     if (rank === 1) badgeName = 'Top 1';
     else if (rank === 2) badgeName = 'Top 2';

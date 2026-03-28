@@ -11,7 +11,7 @@ ENV NODE_ENV=development
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
 # Copy monorepo files
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY .npmrc ./
 
 # Install dependencies

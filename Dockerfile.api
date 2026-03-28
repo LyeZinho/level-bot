@@ -10,14 +10,19 @@ ENV NODE_ENV=development
 # Enable corepack for pnpm (comes with Node.js 16+)
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
-# Copy monorepo files
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+# Copy all workspace manifests and config first
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY .npmrc ./
 
-# Install dependencies
+# Copy all package.json files so pnpm can set up workspace symlinks correctly
+COPY packages/shared/package.json packages/shared/package.json
+COPY packages/db/package.json packages/db/package.json
+COPY apps/api/package.json apps/api/package.json
+
+# Install dependencies with full workspace context
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source code (after install so pnpm workspace links are correct)
 COPY packages/shared packages/shared/
 COPY packages/db packages/db/
 COPY apps/api apps/api/
