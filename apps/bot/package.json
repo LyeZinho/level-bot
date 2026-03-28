@@ -30,7 +30,8 @@
     "joi": "^18.1.1",
     "necord": "^6.12.4",
     "pg": "^8.20.0",
-    "postgres": "^3.4.8"
+    "postgres": "^3.4.8",
+    "zlib-sync": "^0.1.9"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.3",
