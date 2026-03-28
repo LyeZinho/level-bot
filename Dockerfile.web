@@ -1,0 +1,47 @@
+# Multi-stage build for Level Bot Admin Panel Web UI
+
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy monorepo files
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
+COPY .npmrc ./
+
+# Install dependencies
+RUN npm install -g pnpm@10 && pnpm install --frozen-lockfile
+
+# Copy source code
+COPY packages/shared packages/shared/
+COPY apps/web apps/web/
+COPY tsconfig.json ./
+
+# Build shared and web
+RUN pnpm build --filter @level-bot/shared
+RUN pnpm build --filter @level-bot/web
+
+# Production stage - use nginx to serve static SvelteKit output
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm@10
+
+# Copy pnpm lock
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
+
+# Install production dependencies for web app
+RUN pnpm install --prod --frozen-lockfile
+
+# Copy built app from builder
+COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+COPY --from=builder /app/node_modules ./node_modules
+
+# Web runs on port 5173
+EXPOSE 5173
+
+# Serve the SvelteKit dist
+WORKDIR /app/apps/web
+CMD ["npm", "run", "preview"]
