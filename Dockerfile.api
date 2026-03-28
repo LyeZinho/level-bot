@@ -23,10 +23,8 @@ COPY packages/db packages/db/
 COPY apps/api apps/api/
 COPY tsconfig.json ./
 
-# Build shared, db, and api
-RUN pnpm build --filter @level-bot/shared
-RUN pnpm build --filter @level-bot/db
-RUN pnpm build --filter @level-bot/api
+# Build with turbo (handles dependencies automatically)
+RUN pnpm build
 
 # Production stage
 FROM node:20-alpine

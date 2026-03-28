@@ -22,9 +22,8 @@ COPY packages/shared packages/shared/
 COPY apps/web apps/web/
 COPY tsconfig.json ./
 
-# Build shared and web
-RUN pnpm build --filter @level-bot/shared
-RUN pnpm build --filter @level-bot/web
+# Build with turbo (handles dependencies automatically)
+RUN pnpm build
 
 # Production stage - use nginx to serve static SvelteKit output
 FROM node:20-alpine
