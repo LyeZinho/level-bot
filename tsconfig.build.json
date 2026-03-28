@@ -9,6 +9,8 @@
       "@/*": ["./*"]
     },
     "ignoreDeprecations": "6.0",
+    "declaration": false,
+    "declarationMap": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "tsBuildInfoFile": ".tsbuildinfo"
