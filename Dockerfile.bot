@@ -44,9 +44,6 @@ COPY --from=builder /app/packages/db/dist ./packages/db/dist
 # Copy node_modules from builder (more efficient than npm install)
 COPY --from=builder /app/node_modules ./node_modules
 
-# Copy env file template
-COPY apps/bot/.env.example ./apps/bot/.env 2>/dev/null || true
-
 # Start bot
 WORKDIR /app/apps/bot
 CMD ["node", "dist/main.js"]
