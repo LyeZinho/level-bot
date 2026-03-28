@@ -1,0 +1,30 @@
+import {
+  pgTable,
+  serial,
+  varchar,
+  integer,
+  boolean,
+  text,
+  timestamp,
+  json,
+} from 'drizzle-orm/pg-core';
+
+export const botSettings = pgTable('bot_settings', {
+  id: serial('id').primaryKey(),
+  guildId: varchar('guild_id', { length: 20 }).notNull().unique(),
+  prefix: varchar('prefix', { length: 10 }).notNull().default('!'),
+  xpPerMessageMin: integer('xp_per_message_min').notNull().default(15),
+  xpPerMessageMax: integer('xp_per_message_max').notNull().default(25),
+  xpCooldownSeconds: integer('xp_cooldown_seconds').notNull().default(60),
+  xpPerVoiceMinute: integer('xp_per_voice_minute').notNull().default(1),
+  coinsPer100XP: integer('coins_per_100xp').notNull().default(1),
+  coinsMaxPerMessage: integer('coins_max_per_message').notNull().default(25),
+  coinsDailyClaim: integer('coins_daily_claim').notNull().default(100),
+  levelUpChannelId: varchar('level_up_channel_id', { length: 20 }).notNull().default(''),
+  levelUpDMEnabled: boolean('level_up_dm_enabled').notNull().default(false),
+  recalculationIntervalMs: integer('recalculation_interval_ms').notNull().default(300000),
+  minVoiceSeconds: integer('min_voice_seconds').notNull().default(60),
+  allowedGuildIds: json('allowed_guild_ids').$type<string[]>().notNull().default([]),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedBy: varchar('updated_by', { length: 20 }).notNull().default(''),
+});

@@ -1,0 +1,58 @@
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  json,
+  timestamp,
+  index,
+  pgEnum,
+} from 'drizzle-orm/pg-core';
+
+export const auditActionEnum = pgEnum('audit_action', [
+  'settings.update',
+  'shop.item.create',
+  'shop.item.update',
+  'shop.item.delete',
+  'badge.create',
+  'badge.update',
+  'badge.delete',
+  'badge.grant',
+  'badge.revoke',
+  'vip.grant',
+  'vip.revoke',
+  'vip.update',
+  'event.create',
+  'event.update',
+  'event.delete',
+  'user.ban',
+  'user.unban',
+  'user.coins.adjust',
+  'user.xp.adjust',
+  'user.role.change',
+  'admin.login',
+  'admin.logout',
+]);
+
+export const auditLogs = pgTable(
+  'audit_logs',
+  {
+    id: serial('id').primaryKey(),
+    action: auditActionEnum('action').notNull(),
+    performedBy: varchar('performed_by', { length: 20 }).notNull(),
+    guildId: varchar('guild_id', { length: 20 }).notNull(),
+    targetId: varchar('target_id', { length: 64 }),
+    targetLabel: varchar('target_label', { length: 256 }),
+    before: json('before').$type<Record<string, unknown>>(),
+    after: json('after').$type<Record<string, unknown>>(),
+    ipAddress: varchar('ip_address', { length: 45 }),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('audit_logs_performed_by_idx').on(table.performedBy),
+    index('audit_logs_created_at_idx').on(table.createdAt),
+    index('audit_logs_action_idx').on(table.action),
+    index('audit_logs_guild_id_idx').on(table.guildId),
+  ],
+);
