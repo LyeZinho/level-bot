@@ -9,15 +9,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CommandsModule = void 0;
 const common_1 = require("@nestjs/common");
 const leveling_module_1 = require("../../leveling/leveling.module");
+const economy_module_1 = require("../../economy/economy.module");
+const badges_module_1 = require("../../badges/badges.module");
 const utils_module_1 = require("../../utils/utils.module");
 const level_command_1 = require("./level.command");
+const ranking_command_1 = require("./ranking.command");
+const profile_command_1 = require("./profile.command");
+const coins_command_1 = require("./coins.command");
 let CommandsModule = class CommandsModule {
 };
 exports.CommandsModule = CommandsModule;
 exports.CommandsModule = CommandsModule = __decorate([
     (0, common_1.Module)({
-        imports: [leveling_module_1.LevelingModule, utils_module_1.UtilsModule],
-        providers: [level_command_1.LevelCommand],
+        imports: [leveling_module_1.LevelingModule, economy_module_1.EconomyModule, badges_module_1.BadgesModule, utils_module_1.UtilsModule],
+        providers: [level_command_1.LevelCommand, ranking_command_1.RankingCommand, profile_command_1.ProfileCommand, coins_command_1.CoinsCommand],
     })
 ], CommandsModule);
 //# sourceMappingURL=commands.module.js.map

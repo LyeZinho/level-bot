@@ -12,23 +12,21 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LevelCommand = void 0;
+exports.RankingCommand = void 0;
 const common_1 = require("@nestjs/common");
 const necord_1 = require("necord");
 const discord_js_1 = require("discord.js");
 const leveling_service_1 = require("../../leveling/leveling.service");
 const svg_generator_1 = require("../../utils/svg.generator");
 const image_service_1 = require("../../utils/image.service");
-let LevelCommand = class LevelCommand {
+let RankingCommand = class RankingCommand {
     constructor(levelingService, svgGenerator, imageService) {
         this.levelingService = levelingService;
         this.svgGenerator = svgGenerator;
         this.imageService = imageService;
     }
-    async onLevel([interaction]) {
+    async onRanking([interaction]) {
         await interaction.deferReply();
-        const targetUser = interaction.options.getUser('user') || interaction.user;
-        const userId = targetUser.id;
         const guildId = interaction.guildId;
         if (!guildId) {
             await interaction.editReply({
@@ -37,47 +35,43 @@ let LevelCommand = class LevelCommand {
             return;
         }
         try {
-            const levelInfo = await this.levelingService.getLevelInfo(userId, guildId);
-            if (!levelInfo) {
+            const ranking = await this.levelingService.getRanking(guildId, 10);
+            if (!ranking || ranking.length === 0) {
                 await interaction.editReply({
-                    content: `${targetUser.username} ainda não tem XP.`,
+                    content: 'Nenhum usuário com XP foi encontrado ainda.',
                 });
                 return;
             }
-            const level = this.levelingService.calculateLevel(parseInt(levelInfo.user.xp));
-            const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
-            const xp = parseInt(levelInfo.user.xp);
-            const coins = parseInt(levelInfo.user.coins);
-            const cardSvg = this.svgGenerator.generateLevelCard(targetUser.username, level, xp, nextLevelXp, levelInfo.rank, coins);
+            const cardSvg = this.svgGenerator.generateRankingCard(ranking);
             const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
             const attachment = new discord_js_1.AttachmentBuilder(pngBuffer, {
-                name: 'level-card.png',
+                name: 'ranking-card.png',
             });
             await interaction.editReply({ files: [attachment] });
         }
         catch (error) {
-            console.error('Error in level command:', error);
+            console.error('Error in ranking command:', error);
             await interaction.editReply({
-                content: 'Ocorreu um erro ao gerar seu card de nível. Tente novamente.',
+                content: 'Ocorreu um erro ao gerar o ranking. Tente novamente.',
             });
         }
     }
 };
-exports.LevelCommand = LevelCommand;
+exports.RankingCommand = RankingCommand;
 __decorate([
     (0, necord_1.SlashCommand)({
-        name: 'level',
-        description: 'Confira seu nível e XP',
+        name: 'ranking',
+        description: 'Veja o ranking de níveis do servidor',
     }),
     __param(0, (0, necord_1.Context)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", Promise)
-], LevelCommand.prototype, "onLevel", null);
-exports.LevelCommand = LevelCommand = __decorate([
+], RankingCommand.prototype, "onRanking", null);
+exports.RankingCommand = RankingCommand = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [leveling_service_1.LevelingService,
         svg_generator_1.SvgGeneratorService,
         image_service_1.ImageService])
-], LevelCommand);
-//# sourceMappingURL=level.command.js.map
+], RankingCommand);
+//# sourceMappingURL=ranking.command.js.map

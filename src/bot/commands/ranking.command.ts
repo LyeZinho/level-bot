@@ -6,7 +6,7 @@ import { SvgGeneratorService } from '../../utils/svg.generator';
 import { ImageService } from '../../utils/image.service';
 
 @Injectable()
-export class LevelCommand {
+export class RankingCommand {
   constructor(
     private levelingService: LevelingService,
     private svgGenerator: SvgGeneratorService,
@@ -14,16 +14,14 @@ export class LevelCommand {
   ) {}
 
   @SlashCommand({
-    name: 'level',
-    description: 'Confira seu nível e XP',
+    name: 'ranking',
+    description: 'Veja o ranking de níveis do servidor',
   })
-  async onLevel(
+  async onRanking(
     @Context() [interaction]: SlashCommandContext,
   ): Promise<void> {
     await interaction.deferReply();
 
-    const targetUser = interaction.options.getUser('user') || interaction.user;
-    const userId = targetUser.id;
     const guildId = interaction.guildId;
 
     if (!guildId) {
@@ -34,45 +32,28 @@ export class LevelCommand {
     }
 
     try {
-      const levelInfo = await this.levelingService.getLevelInfo(userId, guildId);
+      const ranking = await this.levelingService.getRanking(guildId, 10);
 
-      if (!levelInfo) {
+      if (!ranking || ranking.length === 0) {
         await interaction.editReply({
-          content: `${targetUser.username} ainda não tem XP.`,
+          content: 'Nenhum usuário com XP foi encontrado ainda.',
         });
         return;
       }
 
-      const level = this.levelingService.calculateLevel(parseInt(levelInfo.user.xp));
-      const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
-      const xp = parseInt(levelInfo.user.xp);
-      const coins = parseInt(levelInfo.user.coins);
-
-      const cardSvg = this.svgGenerator.generateLevelCard(
-        targetUser.username,
-        level,
-        xp,
-        nextLevelXp,
-        levelInfo.rank,
-        coins,
-      );
-
+      const cardSvg = this.svgGenerator.generateRankingCard(ranking);
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
 
       const attachment = new AttachmentBuilder(pngBuffer, {
-        name: 'level-card.png',
+        name: 'ranking-card.png',
       });
 
       await interaction.editReply({ files: [attachment] });
     } catch (error) {
-      console.error('Error in level command:', error);
+      console.error('Error in ranking command:', error);
       await interaction.editReply({
-        content: 'Ocorreu um erro ao gerar seu card de nível. Tente novamente.',
+        content: 'Ocorreu um erro ao gerar o ranking. Tente novamente.',
       });
     }
   }
 }
-
-
-
-

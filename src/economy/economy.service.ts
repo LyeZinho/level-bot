@@ -50,16 +50,30 @@ export class EconomyService {
     }
   }
 
-  async claimDaily(userId: string, guildId: string): Promise<{ success: boolean; reason?: string; amount?: number; timeLeft?: number }> {
-    const user = await this.db
-      .select()
-      .from(schema.users)
-      .where(and(eq(schema.users.userId, userId), eq(schema.users.guildId, guildId)))
-      .limit(1);
+   async getBalance(userId: string, guildId: string): Promise<{ coins: number } | null> {
+     const user = await this.db
+       .select()
+       .from(schema.users)
+       .where(and(eq(schema.users.userId, userId), eq(schema.users.guildId, guildId)))
+       .limit(1);
 
-    if (user.length === 0) {
-      return { success: false, reason: 'user_not_found' };
-    }
+     if (user.length === 0) {
+       return null;
+     }
+
+     return { coins: parseInt(user[0].coins) };
+   }
+
+   async claimDaily(userId: string, guildId: string): Promise<{ success: boolean; reason?: string; amount?: number; timeLeft?: number }> {
+     const user = await this.db
+       .select()
+       .from(schema.users)
+       .where(and(eq(schema.users.userId, userId), eq(schema.users.guildId, guildId)))
+       .limit(1);
+
+     if (user.length === 0) {
+       return { success: false, reason: 'user_not_found' };
+     }
 
     const now = Date.now();
     const oneDayMs = 24 * 60 * 60 * 1000;

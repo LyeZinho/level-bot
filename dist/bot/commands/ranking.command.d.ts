@@ -2,11 +2,11 @@ import { SlashCommandContext } from 'necord';
 import { LevelingService } from '../../leveling/leveling.service';
 import { SvgGeneratorService } from '../../utils/svg.generator';
 import { ImageService } from '../../utils/image.service';
-export declare class LevelCommand {
+export declare class RankingCommand {
     private levelingService;
     private svgGenerator;
     private imageService;
     constructor(levelingService: LevelingService, svgGenerator: SvgGeneratorService, imageService: ImageService);
-    onLevel([interaction]: SlashCommandContext): Promise<void>;
+    onRanking([interaction]: SlashCommandContext): Promise<void>;
 }
-//# sourceMappingURL=level.command.d.ts.map
+//# sourceMappingURL=ranking.command.d.ts.map

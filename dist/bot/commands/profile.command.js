@@ -12,20 +12,22 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LevelCommand = void 0;
+exports.ProfileCommand = void 0;
 const common_1 = require("@nestjs/common");
 const necord_1 = require("necord");
 const discord_js_1 = require("discord.js");
 const leveling_service_1 = require("../../leveling/leveling.service");
+const badges_service_1 = require("../../badges/badges.service");
 const svg_generator_1 = require("../../utils/svg.generator");
 const image_service_1 = require("../../utils/image.service");
-let LevelCommand = class LevelCommand {
-    constructor(levelingService, svgGenerator, imageService) {
+let ProfileCommand = class ProfileCommand {
+    constructor(levelingService, badgesService, svgGenerator, imageService) {
         this.levelingService = levelingService;
+        this.badgesService = badgesService;
         this.svgGenerator = svgGenerator;
         this.imageService = imageService;
     }
-    async onLevel([interaction]) {
+    async onProfile([interaction]) {
         await interaction.deferReply();
         const targetUser = interaction.options.getUser('user') || interaction.user;
         const userId = targetUser.id;
@@ -38,6 +40,7 @@ let LevelCommand = class LevelCommand {
         }
         try {
             const levelInfo = await this.levelingService.getLevelInfo(userId, guildId);
+            const userBadges = await this.badgesService.getUserBadges(userId, guildId);
             if (!levelInfo) {
                 await interaction.editReply({
                     content: `${targetUser.username} ainda não tem XP.`,
@@ -45,39 +48,41 @@ let LevelCommand = class LevelCommand {
                 return;
             }
             const level = this.levelingService.calculateLevel(parseInt(levelInfo.user.xp));
-            const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
             const xp = parseInt(levelInfo.user.xp);
             const coins = parseInt(levelInfo.user.coins);
-            const cardSvg = this.svgGenerator.generateLevelCard(targetUser.username, level, xp, nextLevelXp, levelInfo.rank, coins);
+            const messages = levelInfo.user.messages;
+            const voiceTime = levelInfo.user.voiceTime;
+            const cardSvg = this.svgGenerator.generateProfileCard(targetUser.username, level, xp, levelInfo.rank, coins, userBadges.length);
             const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
             const attachment = new discord_js_1.AttachmentBuilder(pngBuffer, {
-                name: 'level-card.png',
+                name: 'profile-card.png',
             });
             await interaction.editReply({ files: [attachment] });
         }
         catch (error) {
-            console.error('Error in level command:', error);
+            console.error('Error in profile command:', error);
             await interaction.editReply({
-                content: 'Ocorreu um erro ao gerar seu card de nível. Tente novamente.',
+                content: 'Ocorreu um erro ao gerar o perfil. Tente novamente.',
             });
         }
     }
 };
-exports.LevelCommand = LevelCommand;
+exports.ProfileCommand = ProfileCommand;
 __decorate([
     (0, necord_1.SlashCommand)({
-        name: 'level',
-        description: 'Confira seu nível e XP',
+        name: 'profile',
+        description: 'Veja seu perfil detalhado com estatísticas',
     }),
     __param(0, (0, necord_1.Context)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", Promise)
-], LevelCommand.prototype, "onLevel", null);
-exports.LevelCommand = LevelCommand = __decorate([
+], ProfileCommand.prototype, "onProfile", null);
+exports.ProfileCommand = ProfileCommand = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [leveling_service_1.LevelingService,
+        badges_service_1.BadgesService,
         svg_generator_1.SvgGeneratorService,
         image_service_1.ImageService])
-], LevelCommand);
-//# sourceMappingURL=level.command.js.map
+], ProfileCommand);
+//# sourceMappingURL=profile.command.js.map

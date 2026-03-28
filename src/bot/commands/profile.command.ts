@@ -2,22 +2,24 @@ import { Injectable } from '@nestjs/common';
 import { SlashCommand, Context, SlashCommandContext } from 'necord';
 import { AttachmentBuilder } from 'discord.js';
 import { LevelingService } from '../../leveling/leveling.service';
+import { BadgesService } from '../../badges/badges.service';
 import { SvgGeneratorService } from '../../utils/svg.generator';
 import { ImageService } from '../../utils/image.service';
 
 @Injectable()
-export class LevelCommand {
+export class ProfileCommand {
   constructor(
     private levelingService: LevelingService,
+    private badgesService: BadgesService,
     private svgGenerator: SvgGeneratorService,
     private imageService: ImageService,
   ) {}
 
   @SlashCommand({
-    name: 'level',
-    description: 'Confira seu nível e XP',
+    name: 'profile',
+    description: 'Veja seu perfil detalhado com estatísticas',
   })
-  async onLevel(
+  async onProfile(
     @Context() [interaction]: SlashCommandContext,
   ): Promise<void> {
     await interaction.deferReply();
@@ -35,6 +37,7 @@ export class LevelCommand {
 
     try {
       const levelInfo = await this.levelingService.getLevelInfo(userId, guildId);
+      const userBadges = await this.badgesService.getUserBadges(userId, guildId);
 
       if (!levelInfo) {
         await interaction.editReply({
@@ -44,35 +47,32 @@ export class LevelCommand {
       }
 
       const level = this.levelingService.calculateLevel(parseInt(levelInfo.user.xp));
-      const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
       const xp = parseInt(levelInfo.user.xp);
       const coins = parseInt(levelInfo.user.coins);
+      const messages = levelInfo.user.messages;
+      const voiceTime = levelInfo.user.voiceTime;
 
-      const cardSvg = this.svgGenerator.generateLevelCard(
+      const cardSvg = this.svgGenerator.generateProfileCard(
         targetUser.username,
         level,
         xp,
-        nextLevelXp,
         levelInfo.rank,
         coins,
+        userBadges.length,
       );
 
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
 
       const attachment = new AttachmentBuilder(pngBuffer, {
-        name: 'level-card.png',
+        name: 'profile-card.png',
       });
 
       await interaction.editReply({ files: [attachment] });
     } catch (error) {
-      console.error('Error in level command:', error);
+      console.error('Error in profile command:', error);
       await interaction.editReply({
-        content: 'Ocorreu um erro ao gerar seu card de nível. Tente novamente.',
+        content: 'Ocorreu um erro ao gerar o perfil. Tente novamente.',
       });
     }
   }
 }
-
-
-
-
