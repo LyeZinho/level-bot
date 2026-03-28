@@ -18,13 +18,26 @@ const profile_command_1 = require("./profile.command");
 const coins_command_1 = require("./coins.command");
 const daily_command_1 = require("./daily.command");
 const transfer_command_1 = require("./transfer.command");
+const shop_command_1 = require("./shop.command");
+const inventory_command_1 = require("./inventory.command");
+const buy_command_1 = require("./buy.command");
 let CommandsModule = class CommandsModule {
 };
 exports.CommandsModule = CommandsModule;
 exports.CommandsModule = CommandsModule = __decorate([
     (0, common_1.Module)({
         imports: [leveling_module_1.LevelingModule, economy_module_1.EconomyModule, badges_module_1.BadgesModule, utils_module_1.UtilsModule],
-        providers: [level_command_1.LevelCommand, ranking_command_1.RankingCommand, profile_command_1.ProfileCommand, coins_command_1.CoinsCommand, daily_command_1.DailyCommand, transfer_command_1.TransferCommand],
+        providers: [
+            level_command_1.LevelCommand,
+            ranking_command_1.RankingCommand,
+            profile_command_1.ProfileCommand,
+            coins_command_1.CoinsCommand,
+            daily_command_1.DailyCommand,
+            transfer_command_1.TransferCommand,
+            shop_command_1.ShopCommand,
+            inventory_command_1.InventoryCommand,
+            buy_command_1.BuyCommand,
+        ],
     })
 ], CommandsModule);
 //# sourceMappingURL=commands.module.js.map

@@ -12,74 +12,70 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TransferCommand = void 0;
+exports.BuyCommand = void 0;
 const common_1 = require("@nestjs/common");
 const necord_1 = require("necord");
-const economy_service_1 = require("../../economy/economy.service");
+const shop_service_1 = require("../../economy/shop.service");
 const embed_generator_1 = require("../../utils/embed.generator");
-let TransferCommand = class TransferCommand {
-    constructor(economyService, embedGenerator) {
-        this.economyService = economyService;
+let BuyCommand = class BuyCommand {
+    constructor(shopService, embedGenerator) {
+        this.shopService = shopService;
         this.embedGenerator = embedGenerator;
     }
-    async onTransfer([interaction]) {
+    async onBuy([interaction]) {
         await interaction.deferReply();
-        const fromUserId = interaction.user.id;
-        const toUser = interaction.options.getUser('user');
-        const amount = interaction.options.getInteger('amount');
+        const userId = interaction.user.id;
         const guildId = interaction.guildId;
-        if (!guildId || !toUser || !amount) {
+        const itemId = interaction.options.getInteger('item_id');
+        const quantity = interaction.options.getInteger('quantity') || 1;
+        if (!guildId || !itemId) {
             await interaction.editReply({
                 content: 'Parâmetros inválidos.',
             });
             return;
         }
-        if (toUser.id === fromUserId) {
+        if (quantity <= 0) {
             await interaction.editReply({
-                content: 'Você não pode transferir coins para você mesmo.',
-            });
-            return;
-        }
-        if (amount <= 0) {
-            await interaction.editReply({
-                content: 'A quantia deve ser maior que 0.',
+                content: 'A quantidade deve ser maior que 0.',
             });
             return;
         }
         try {
-            const result = await this.economyService.transferCoins(fromUserId, toUser.id, guildId, amount);
+            const result = await this.shopService.buyItem(userId, guildId, itemId, quantity);
             if (!result.success) {
-                const embed = this.embedGenerator.createErrorEmbed('❌ Transferência Falhou', result.reason === 'insufficient_funds'
-                    ? 'Você não tem PityCoins suficientes.'
-                    : 'Ocorreu um erro na transferência.');
+                const embed = this.embedGenerator.createErrorEmbed('❌ Compra Falhou', result.reason === 'insufficient_funds'
+                    ? 'Você não tem PityCoins suficientes para essa compra.'
+                    : result.reason === 'item_not_found'
+                        ? 'Item não encontrado.'
+                        : 'Ocorreu um erro na compra.');
                 await interaction.editReply({ embeds: [embed] });
                 return;
             }
-            const embed = this.embedGenerator.createSuccessEmbed('✅ Transferência Realizada', `Você transferiu **${amount} PityCoins** para ${toUser.username}.`);
+            const embed = this.embedGenerator.createSuccessEmbed('✅ Compra Realizada', `Você comprou **${result.quantity}x ${result.item.name}** por **${result.totalCost} PityCoins**.`);
             await interaction.editReply({ embeds: [embed] });
         }
         catch (error) {
-            console.error('Error in transfer command:', error);
+            console.error('Error in buy command:', error);
             await interaction.editReply({
-                content: 'Ocorreu um erro ao transferir coins. Tente novamente.',
+                content: 'Ocorreu um erro ao processar a compra. Tente novamente.',
             });
         }
     }
 };
-exports.TransferCommand = TransferCommand;
+exports.BuyCommand = BuyCommand;
 __decorate([
     (0, necord_1.SlashCommand)({
-        name: 'transfer',
-        description: 'Transfira PityCoins para outro usuário',
+        name: 'buy',
+        description: 'Compre um item da loja',
     }),
     __param(0, (0, necord_1.Context)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", Promise)
-], TransferCommand.prototype, "onTransfer", null);
-exports.TransferCommand = TransferCommand = __decorate([
+], BuyCommand.prototype, "onBuy", null);
+exports.BuyCommand = BuyCommand = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [economy_service_1.EconomyService,
+    __metadata("design:paramtypes", [shop_service_1.ShopService,
         embed_generator_1.EmbedGeneratorService])
-], TransferCommand);
-//# sourceMappingURL=transfer.command.js.map
+], BuyCommand);
+//# sourceMappingURL=buy.command.js.map
