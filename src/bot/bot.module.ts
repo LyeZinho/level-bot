@@ -11,6 +11,7 @@ import { BadgesModule } from '../badges/badges.module';
 import { SeasonalModule } from '../seasonal/seasonal.module';
 import { UtilsModule } from '../utils/utils.module';
 import { CommandsModule } from './commands/commands.module';
+import { TextCommandsModule } from './text-commands/text-commands.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { CommandsModule } from './commands/commands.module';
     SeasonalModule,
     UtilsModule,
     CommandsModule,
+    TextCommandsModule,
   ],
   controllers: [],
   providers: [],
