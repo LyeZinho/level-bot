@@ -1,10 +1,10 @@
 import { SlashCommandContext } from 'necord';
 import { EconomyService } from '../../economy/economy.service';
 import { EmbedGeneratorService } from '../../utils/embed.generator';
-export declare class CoinsCommand {
+export declare class DailyCommand {
     private economyService;
     private embedGenerator;
     constructor(economyService: EconomyService, embedGenerator: EmbedGeneratorService);
-    onCoins([interaction]: SlashCommandContext): Promise<void>;
+    onDaily([interaction]: SlashCommandContext): Promise<void>;
 }
-//# sourceMappingURL=coins.command.d.ts.map
+//# sourceMappingURL=daily.command.d.ts.map

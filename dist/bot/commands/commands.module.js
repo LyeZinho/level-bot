@@ -16,13 +16,15 @@ const level_command_1 = require("./level.command");
 const ranking_command_1 = require("./ranking.command");
 const profile_command_1 = require("./profile.command");
 const coins_command_1 = require("./coins.command");
+const daily_command_1 = require("./daily.command");
+const transfer_command_1 = require("./transfer.command");
 let CommandsModule = class CommandsModule {
 };
 exports.CommandsModule = CommandsModule;
 exports.CommandsModule = CommandsModule = __decorate([
     (0, common_1.Module)({
         imports: [leveling_module_1.LevelingModule, economy_module_1.EconomyModule, badges_module_1.BadgesModule, utils_module_1.UtilsModule],
-        providers: [level_command_1.LevelCommand, ranking_command_1.RankingCommand, profile_command_1.ProfileCommand, coins_command_1.CoinsCommand],
+        providers: [level_command_1.LevelCommand, ranking_command_1.RankingCommand, profile_command_1.ProfileCommand, coins_command_1.CoinsCommand, daily_command_1.DailyCommand, transfer_command_1.TransferCommand],
     })
 ], CommandsModule);
 //# sourceMappingURL=commands.module.js.map

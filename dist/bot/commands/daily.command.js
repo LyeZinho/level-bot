@@ -12,20 +12,19 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.CoinsCommand = void 0;
+exports.DailyCommand = void 0;
 const common_1 = require("@nestjs/common");
 const necord_1 = require("necord");
 const economy_service_1 = require("../../economy/economy.service");
 const embed_generator_1 = require("../../utils/embed.generator");
-let CoinsCommand = class CoinsCommand {
+let DailyCommand = class DailyCommand {
     constructor(economyService, embedGenerator) {
         this.economyService = economyService;
         this.embedGenerator = embedGenerator;
     }
-    async onCoins([interaction]) {
+    async onDaily([interaction]) {
         await interaction.deferReply();
-        const targetUser = interaction.options.getUser('user') || interaction.user;
-        const userId = targetUser.id;
+        const userId = interaction.user.id;
         const guildId = interaction.guildId;
         if (!guildId) {
             await interaction.editReply({
@@ -34,39 +33,41 @@ let CoinsCommand = class CoinsCommand {
             return;
         }
         try {
-            const balance = await this.economyService.getBalance(userId, guildId);
-            if (!balance) {
-                await interaction.editReply({
-                    content: `${targetUser.username} tem 0 PityCoins.`,
-                });
-                return;
+            const result = await this.economyService.claimDaily(userId, guildId);
+            if (!result.success) {
+                if (result.reason === 'already_claimed') {
+                    const hoursLeft = Math.ceil((result.timeLeft || 0) / (60 * 60 * 1000));
+                    const embed = this.embedGenerator.createWarningEmbed('⏰ Recompensa Diária', `Você já reivindicou sua recompensa hoje. Tente novamente em **${hoursLeft}h**.`);
+                    await interaction.editReply({ embeds: [embed] });
+                    return;
+                }
+                throw new Error(result.reason);
             }
-            const embed = this.embedGenerator.createSuccessEmbed(`💰 Saldo de ${targetUser.username}`, `**PityCoins:** ${balance.coins}`);
-            embed.setThumbnail(targetUser.displayAvatarURL());
+            const embed = this.embedGenerator.createSuccessEmbed('🎉 Recompensa Diária', `Parabéns! Você ganhou **${result.amount} PityCoins**!`);
             await interaction.editReply({ embeds: [embed] });
         }
         catch (error) {
-            console.error('Error in coins command:', error);
+            console.error('Error in daily command:', error);
             await interaction.editReply({
-                content: 'Ocorreu um erro ao buscar seu saldo. Tente novamente.',
+                content: 'Ocorreu um erro ao reivindicar sua recompensa. Tente novamente.',
             });
         }
     }
 };
-exports.CoinsCommand = CoinsCommand;
+exports.DailyCommand = DailyCommand;
 __decorate([
     (0, necord_1.SlashCommand)({
-        name: 'coins',
-        description: 'Veja seu saldo de PityCoins',
+        name: 'daily',
+        description: 'Reivindique sua recompensa diária de PityCoins',
     }),
     __param(0, (0, necord_1.Context)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", Promise)
-], CoinsCommand.prototype, "onCoins", null);
-exports.CoinsCommand = CoinsCommand = __decorate([
+], DailyCommand.prototype, "onDaily", null);
+exports.DailyCommand = DailyCommand = __decorate([
     (0, common_1.Injectable)(),
     __metadata("design:paramtypes", [economy_service_1.EconomyService,
         embed_generator_1.EmbedGeneratorService])
-], CoinsCommand);
-//# sourceMappingURL=coins.command.js.map
+], DailyCommand);
+//# sourceMappingURL=daily.command.js.map
