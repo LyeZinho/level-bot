@@ -1,4 +1,18 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "baseUrl": "./src",
+    "types": ["node"],
+    "paths": {
+      "@/*": ["./*"]
+    },
+    "ignoreDeprecations": "6.0",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "tsBuildInfoFile": ".tsbuildinfo"
+  },
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }
