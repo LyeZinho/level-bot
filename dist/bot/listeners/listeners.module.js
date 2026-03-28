@@ -6,18 +6,18 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.ListenersModule = void 0;
 const common_1 = require("@nestjs/common");
-const config_module_1 = require("./config/config.module");
-const bot_module_1 = require("./bot/bot.module");
-let AppModule = class AppModule {
+const leveling_module_1 = require("../../leveling/leveling.module");
+const message_create_listener_1 = require("./message-create.listener");
+const voice_state_update_listener_1 = require("./voice-state-update.listener");
+let ListenersModule = class ListenersModule {
 };
-exports.AppModule = AppModule;
-exports.AppModule = AppModule = __decorate([
+exports.ListenersModule = ListenersModule;
+exports.ListenersModule = ListenersModule = __decorate([
     (0, common_1.Module)({
-        imports: [config_module_1.ConfigModule, bot_module_1.BotModule],
-        controllers: [],
-        providers: [],
+        imports: [leveling_module_1.LevelingModule],
+        providers: [message_create_listener_1.MessageCreateListener, voice_state_update_listener_1.VoiceStateUpdateListener],
     })
-], AppModule);
-//# sourceMappingURL=app.module.js.map
+], ListenersModule);
+//# sourceMappingURL=listeners.module.js.map

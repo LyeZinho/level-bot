@@ -21,6 +21,7 @@ const seasonal_module_1 = require("../seasonal/seasonal.module");
 const utils_module_1 = require("../utils/utils.module");
 const commands_module_1 = require("./commands/commands.module");
 const text_commands_module_1 = require("./text-commands/text-commands.module");
+const listeners_module_1 = require("./listeners/listeners.module");
 let BotModule = class BotModule {
 };
 exports.BotModule = BotModule;
@@ -58,6 +59,7 @@ exports.BotModule = BotModule = __decorate([
             utils_module_1.UtilsModule,
             commands_module_1.CommandsModule,
             text_commands_module_1.TextCommandsModule,
+            listeners_module_1.ListenersModule,
         ],
         controllers: [],
         providers: [],

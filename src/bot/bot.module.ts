@@ -12,6 +12,7 @@ import { SeasonalModule } from '../seasonal/seasonal.module';
 import { UtilsModule } from '../utils/utils.module';
 import { CommandsModule } from './commands/commands.module';
 import { TextCommandsModule } from './text-commands/text-commands.module';
+import { ListenersModule } from './listeners/listeners.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { TextCommandsModule } from './text-commands/text-commands.module';
     UtilsModule,
     CommandsModule,
     TextCommandsModule,
+    ListenersModule,
   ],
   controllers: [],
   providers: [],
