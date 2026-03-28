@@ -19,6 +19,7 @@ const vip_module_1 = require("../vip/vip.module");
 const badges_module_1 = require("../badges/badges.module");
 const seasonal_module_1 = require("../seasonal/seasonal.module");
 const utils_module_1 = require("../utils/utils.module");
+const commands_module_1 = require("./commands/commands.module");
 let BotModule = class BotModule {
 };
 exports.BotModule = BotModule;
@@ -54,6 +55,7 @@ exports.BotModule = BotModule = __decorate([
             badges_module_1.BadgesModule,
             seasonal_module_1.SeasonalModule,
             utils_module_1.UtilsModule,
+            commands_module_1.CommandsModule,
         ],
         controllers: [],
         providers: [],

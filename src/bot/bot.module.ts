@@ -10,6 +10,7 @@ import { VipModule } from '../vip/vip.module';
 import { BadgesModule } from '../badges/badges.module';
 import { SeasonalModule } from '../seasonal/seasonal.module';
 import { UtilsModule } from '../utils/utils.module';
+import { CommandsModule } from './commands/commands.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UtilsModule } from '../utils/utils.module';
     BadgesModule,
     SeasonalModule,
     UtilsModule,
+    CommandsModule,
   ],
   controllers: [],
   providers: [],
