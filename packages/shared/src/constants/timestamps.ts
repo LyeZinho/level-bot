@@ -1,0 +1,43 @@
+/** All durations in milliseconds unless otherwise noted */
+
+const SECOND = 1_000;
+const MINUTE = 60 * SECOND;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+
+export const TOKEN_LIFETIMES = {
+  ACCESS_TOKEN_SECONDS: 15 * 60,
+  REFRESH_TOKEN_SECONDS: 7 * 24 * 60 * 60,
+  DISCORD_OAUTH2_SECONDS: 604_800,
+} as const;
+
+export const CACHE_TTL = {
+  USER_PROFILE: 5 * MINUTE,
+  LEADERBOARD: 2 * MINUTE,
+  SHOP_ITEMS: 10 * MINUTE,
+  GUILD_SETTINGS: 15 * MINUTE,
+  BADGE_LIST: 10 * MINUTE,
+  VIP_STATUS: 5 * MINUTE,
+  SEASONAL_EVENTS: 30 * MINUTE,
+  DISCORD_USER: 1 * HOUR,
+} as const;
+
+export const RATE_LIMITS = {
+  API_REQUESTS_PER_MINUTE: 60,
+  AUTH_ATTEMPTS_PER_MINUTE: 5,
+  ADMIN_ACTIONS_PER_MINUTE: 30,
+} as const;
+
+export const SESSION_LIFETIMES = {
+  ADMIN_SESSION: 24 * HOUR,
+  MAX_SESSIONS_PER_USER: 5,
+} as const;
+
+export const COOLDOWNS = {
+  XP_MESSAGE: 60 * SECOND,
+  DAILY_CLAIM: 24 * HOUR,
+  SEASONAL_EVENT_PER_USER: 1 * HOUR,
+  TRANSFER_COINS: 30 * SECOND,
+} as const;
+
+export { SECOND, MINUTE, HOUR, DAY };
