@@ -4,6 +4,9 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Force NODE_ENV=development for build stage to ensure devDependencies are installed
+ENV NODE_ENV=development
+
 # Copy monorepo files
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY .npmrc ./
