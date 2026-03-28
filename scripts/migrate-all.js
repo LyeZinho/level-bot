@@ -110,12 +110,6 @@ async function migrateBoosts(client) {
     CREATE INDEX IF NOT EXISTS idx_boosts_expiry ON user_boosts(user_id, guild_id, expires_at);
   `);
   console.log('✅ Índice criado\n');
-
-  // Limpar itens antigos da loja (opcional)
-  console.log('3️⃣ Limpando itens antigos da loja...');
-  await client.query('DELETE FROM user_inventory');
-  await client.query('DELETE FROM items');
-  console.log('✅ Itens antigos removidos\n');
 }
 
 // Migração 3: Sistema VIP

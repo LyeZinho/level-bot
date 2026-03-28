@@ -37,19 +37,13 @@ async function migrateBoosts() {
     `);
     console.log('✅ Tabela "user_boosts" criada\n');
     
-    console.log('2️⃣ Criando índice para otimização...');
-    await client.query(`
-      CREATE INDEX IF NOT EXISTS idx_boosts_expiry ON user_boosts(user_id, guild_id, expires_at);
-    `);
-    console.log('✅ Índice criado\n');
-    
-    // Limpar itens antigos da loja (opcional)
-    console.log('3️⃣ Limpando itens antigos da loja...');
-    await client.query('DELETE FROM user_inventory');
-    await client.query('DELETE FROM items');
-    console.log('✅ Itens antigos removidos\n');
-    
-    console.log('✅ Migração concluída com sucesso!');
+     console.log('2️⃣ Criando índice para otimização...');
+     await client.query(`
+       CREATE INDEX IF NOT EXISTS idx_boosts_expiry ON user_boosts(user_id, guild_id, expires_at);
+     `);
+     console.log('✅ Índice criado\n');
+     
+     console.log('✅ Migração concluída com sucesso!');
     console.log('\n📝 Próximos passos:');
     console.log('   1. Execute: npm run seed');
     console.log('   2. Reinicie o bot: npm start');

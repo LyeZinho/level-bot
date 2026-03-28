@@ -1,1 +1,0 @@
-{"version":3,"file":"level-recalc.worker.d.ts","sourceRoot":"","sources":["../../src/workers/level-recalc.worker.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,eAAe,EAAE,MAAM,8BAA8B,CAAC;AAE/D,qBACa,iBAAiB;IAGhB,OAAO,CAAC,eAAe;IAFnC,OAAO,CAAC,QAAQ,CAAC,MAAM,CAAsC;gBAEzC,eAAe,EAAE,eAAe;IAG9C,wBAAwB,IAAI,OAAO,CAAC,IAAI,CAAC;CAShD"}
