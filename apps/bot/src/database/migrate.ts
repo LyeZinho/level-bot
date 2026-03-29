@@ -332,6 +332,81 @@ async function migrate() {
       END$$;
     `;
 
+    // Populate shop items with defaults if empty
+    console.log('[migrate] Populating default shop items...');
+    const itemCount = await sql`SELECT COUNT(*) as count FROM items`;
+    if (itemCount[0].count === 0) {
+      const shopItems = [
+        {
+          name: 'Poção de XP +50',
+          description: 'Ganhe 50 XP extras',
+          price: 100,
+          emoji: '🧪',
+          type: 'consumable',
+        },
+        {
+          name: 'Poção de XP +100',
+          description: 'Ganhe 100 XP extras',
+          price: 200,
+          emoji: '🧪',
+          type: 'consumable',
+        },
+        {
+          name: 'Multiplicador 2x por 1 hora',
+          description: 'Dobre seu XP por 1 hora',
+          price: 500,
+          emoji: '⚡',
+          type: 'boost',
+        },
+        {
+          name: 'Multiplicador 3x por 30 minutos',
+          description: 'Triplique seu XP por 30 minutos',
+          price: 750,
+          emoji: '⚡',
+          type: 'boost',
+        },
+        {
+          name: 'Caixa Misteriosa',
+          description: 'Contém um item aleatório',
+          price: 300,
+          emoji: '📦',
+          type: 'mystery',
+        },
+        {
+          name: 'Badge Especial',
+          description: 'Uma badge rara para seu perfil',
+          price: 1000,
+          emoji: '🏅',
+          type: 'cosmetic',
+        },
+        {
+          name: 'Reputação +100',
+          description: 'Aumente sua reputação no servidor',
+          price: 600,
+          emoji: '⭐',
+          type: 'special',
+        },
+        {
+          name: 'Título Especial',
+          description: 'Um título personalizado para seu perfil',
+          price: 2000,
+          emoji: '👑',
+          type: 'cosmetic',
+        },
+      ];
+
+      for (const item of shopItems) {
+        await sql`
+          INSERT INTO items (name, description, price, emoji, type, hidden)
+          VALUES (${item.name}, ${item.description}, ${item.price}, ${item.emoji}, ${item.type}, false)
+          ON CONFLICT (name) DO NOTHING
+        `;
+      }
+      console.log(`[migrate] Inserted ${shopItems.length} default shop items.`);
+    } else {
+      console.log(`[migrate] Shop already has items (${itemCount[0].count}), skipping population.`);
+    }
+
     console.log('[migrate] Done.');
   } catch (err) {
     console.error('[migrate] Failed:', err);
