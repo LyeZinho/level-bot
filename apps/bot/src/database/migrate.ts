@@ -47,6 +47,8 @@ async function migrate() {
       DO $$
       BEGIN
         IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
+        ) AND EXISTS (
           SELECT 1 FROM information_schema.columns
           WHERE table_name = 'user_inventory'
             AND column_name = 'acquired_at'
@@ -65,6 +67,8 @@ async function migrate() {
       DO $$
       BEGIN
         IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
+        ) AND EXISTS (
           SELECT 1 FROM information_schema.columns
           WHERE table_name = 'user_badges'
             AND column_name = 'earned_at'
@@ -83,6 +87,8 @@ async function migrate() {
       DO $$
       BEGIN
         IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
+        ) AND EXISTS (
           SELECT 1 FROM information_schema.columns
           WHERE table_name = 'user_badges'
             AND column_name = 'expires_at'
@@ -99,13 +105,27 @@ async function migrate() {
     `;
 
     await sql`
-      CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item
-        ON user_inventory (user_id, guild_id, item_id);
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
+        ) THEN
+          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item
+            ON user_inventory (user_id, guild_id, item_id);
+        END IF;
+      END$$;
     `;
 
     await sql`
-      CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge
-        ON user_badges (user_id, guild_id, badge_id);
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
+        ) THEN
+          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge
+            ON user_badges (user_id, guild_id, badge_id);
+        END IF;
+      END$$;
     `;
 
     console.log('[migrate] Done.');
