@@ -59,4 +59,4 @@ COPY package.json ./
 
 # Start bot
 WORKDIR /app/apps/bot
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "node dist/database/migrate.js && node dist/main.js"]
