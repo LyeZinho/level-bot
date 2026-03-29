@@ -10,14 +10,21 @@ ENV NODE_ENV=development
 # Enable corepack for pnpm (comes with Node.js 16+)
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
-# Copy monorepo files
+# Install build tools needed for native modules in the workspace (zlib-sync, sharp)
+RUN apk add --no-cache python3 make g++
+
+# Copy all workspace manifests and config first
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY .npmrc ./
 
-# Install dependencies
+# Copy all package.json files so pnpm can set up workspace symlinks correctly
+COPY packages/shared/package.json packages/shared/package.json
+COPY apps/web/package.json apps/web/package.json
+
+# Install dependencies with full workspace context
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Copy source code (after install so pnpm workspace links are correct)
 COPY packages/shared packages/shared/
 COPY apps/web apps/web/
 COPY tsconfig.json ./
@@ -25,28 +32,32 @@ COPY tsconfig.json ./
 # Build with turbo (handles dependencies automatically)
 RUN pnpm build
 
-# Production stage - use nginx to serve static SvelteKit output
+# Production stage
 FROM node:20-alpine
 
 WORKDIR /app
 
-# Enable corepack for pnpm (comes with Node.js 16+)
-RUN corepack enable && corepack prepare pnpm@10 --activate
-
-# Copy pnpm lock
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
-
-# Install production dependencies for web app
-RUN pnpm install --prod --frozen-lockfile
-
-# Copy built app from builder
-COPY --from=builder /app/apps/web/dist ./apps/web/dist
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
+# Copy root node_modules (includes vite for preview serving)
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy workspace packages with their built dist
+# (pnpm hoisted linker places @level-bot/* in each app's own node_modules)
+COPY --from=builder /app/packages/shared ./packages/shared
+
+# Copy app-level node_modules (contains @level-bot/* workspace links)
+COPY --from=builder /app/apps/web/node_modules ./apps/web/node_modules
+
+# Copy built static app
+COPY --from=builder /app/apps/web/dist ./apps/web/dist
+COPY --from=builder /app/apps/web/package.json ./apps/web/package.json
+COPY --from=builder /app/apps/web/vite.config.mjs ./apps/web/vite.config.mjs
+
+# Copy root package.json for context
+COPY package.json ./
 
 # Web runs on port 5173
 EXPOSE 5173
 
-# Serve the SvelteKit dist
+# Serve the built static files with vite preview
 WORKDIR /app/apps/web
-CMD ["npm", "run", "preview"]
+CMD ["/app/node_modules/.bin/vite", "preview", "--host", "0.0.0.0", "--port", "5173"]

@@ -10,6 +10,9 @@ ENV NODE_ENV=development
 # Enable corepack for pnpm (comes with Node.js 16+)
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
+# Install build tools needed for native modules (sharp, zlib-sync)
+RUN apk add --no-cache python3 make g++
+
 # Copy all workspace manifests and config first
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY .npmrc ./
@@ -36,22 +39,23 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Enable corepack for pnpm (comes with Node.js 16+)
-RUN corepack enable && corepack prepare pnpm@10 --activate
-
-# Copy pnpm lock and workspaces
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json .npmrc ./
-
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
-
-# Copy built apps from builder
-COPY --from=builder /app/apps/bot/dist ./apps/bot/dist
-COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
-COPY --from=builder /app/packages/db/dist ./packages/db/dist
-
-# Copy node_modules from builder (more efficient than npm install)
+# Copy root node_modules (shared third-party packages, includes native binaries)
 COPY --from=builder /app/node_modules ./node_modules
+
+# Copy workspace packages with their built dist
+# (pnpm hoisted linker places @level-bot/* in each app's own node_modules)
+COPY --from=builder /app/packages/shared ./packages/shared
+COPY --from=builder /app/packages/db ./packages/db
+
+# Copy app-level node_modules (contains @level-bot/* workspace links)
+COPY --from=builder /app/apps/bot/node_modules ./apps/bot/node_modules
+
+# Copy built app dist and package.json
+COPY --from=builder /app/apps/bot/dist ./apps/bot/dist
+COPY --from=builder /app/apps/bot/package.json ./apps/bot/package.json
+
+# Copy root package.json for context
+COPY package.json ./
 
 # Start bot
 WORKDIR /app/apps/bot
