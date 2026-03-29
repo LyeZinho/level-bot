@@ -13,7 +13,7 @@ export class ProfileTextCommand {
     private badgesService: BadgesService,
     private svgGenerator: SvgGeneratorService,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   @TextCommand({
     name: 'profile',
@@ -44,14 +44,24 @@ export class ProfileTextCommand {
       const xp = parseInt(levelInfo.user.xp);
       const coins = parseInt(levelInfo.user.coins);
 
-      const cardSvg = this.svgGenerator.generateProfileCard(
-        targetUser.username,
+      const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
+
+      const cardSvg = this.svgGenerator.generateProfileCard({
+        username: targetUser.username,
         level,
         xp,
-        levelInfo.rank,
-        coins,
-        userBadges.length,
-      );
+        rank: levelInfo.rank,
+        progress: {
+          current: xp,
+          needed: nextLevelXp,
+        },
+        messages: levelInfo.user.messages || 0,
+        voiceHours: Math.floor((levelInfo.user.voiceTime || 0) / 3600),
+        voiceMinutes: Math.floor(((levelInfo.user.voiceTime || 0) % 3600) / 60),
+        joinedAt: 0,
+        avatarURL: targetUser.displayAvatarURL({ extension: 'png', size: 256 }) || null,
+        badges: userBadges.map(b => ({ icon: b.badge.image_path || '' })),
+      });
 
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
 

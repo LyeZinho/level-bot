@@ -11,7 +11,7 @@ export class LevelTextCommand {
     private levelingService: LevelingService,
     private svgGenerator: SvgGeneratorService,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   @TextCommand({
     name: 'level',
@@ -42,14 +42,19 @@ export class LevelTextCommand {
       const xp = parseInt(levelInfo.user.xp);
       const coins = parseInt(levelInfo.user.coins);
 
-      const cardSvg = this.svgGenerator.generateLevelCard(
-        targetUser.username,
+      const cardSvg = this.svgGenerator.generateLevelCard({
+        username: targetUser.username,
         level,
         xp,
-        nextLevelXp,
-        levelInfo.rank,
-        coins,
-      );
+        rank: levelInfo.rank,
+        progress: {
+          current: xp,
+          needed: nextLevelXp,
+        },
+        messages: levelInfo.user.messages || 0,
+        voiceTime: levelInfo.user.voiceTime || 0,
+        avatarURL: targetUser.displayAvatarURL({ extension: 'png', size: 256 }) || null,
+      });
 
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
 

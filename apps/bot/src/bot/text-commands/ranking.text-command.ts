@@ -11,7 +11,7 @@ export class RankingTextCommand {
     private levelingService: LevelingService,
     private svgGenerator: SvgGeneratorService,
     private imageService: ImageService,
-  ) {}
+  ) { }
 
   @TextCommand({
     name: 'ranking',
@@ -35,7 +35,28 @@ export class RankingTextCommand {
         return;
       }
 
-      const cardSvg = this.svgGenerator.generateRankingCard(ranking);
+      const rankingData = await Promise.all(ranking.map(async (r, index) => {
+        let discordUser = message.client.users.cache.get(r.userId);
+        if (!discordUser) {
+          try {
+            discordUser = await message.client.users.fetch(r.userId);
+          } catch (e) {
+            // silent fail
+          }
+        }
+        return {
+          username: discordUser?.username || 'Desconhecido',
+          level: this.levelingService.calculateLevel(parseInt(r.xp)),
+          xp: parseInt(r.xp),
+          rank: index + 1,
+          avatarURL: discordUser?.displayAvatarURL({ extension: 'png', size: 128 }) || null
+        };
+      }));
+
+      const cardSvg = this.svgGenerator.generateRankingCard({
+        guildName: message.guild?.name || 'Servidor',
+        ranking: rankingData
+      });
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);
 
       const attachment = new AttachmentBuilder(pngBuffer, {

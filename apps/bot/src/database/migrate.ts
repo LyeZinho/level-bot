@@ -184,15 +184,17 @@ async function migrate() {
         IF EXISTS (
           SELECT 1 FROM information_schema.columns
           WHERE table_name = 'users' AND column_name = 'last_daily_claim'
-        ) AND NOT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'users' AND column_name = 'last_daily_claim_at'
         ) THEN
-          ALTER TABLE users ADD COLUMN last_daily_claim_at timestamptz;
-          UPDATE users
-            SET last_daily_claim_at = to_timestamp(last_daily_claim / 1000.0)
-            WHERE last_daily_claim IS NOT NULL AND last_daily_claim > 0;
-          ALTER TABLE users DROP COLUMN last_daily_claim;
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'users' AND column_name = 'last_daily_claim_at'
+          ) THEN
+            ALTER TABLE users ADD COLUMN last_daily_claim_at timestamptz;
+            UPDATE users
+              SET last_daily_claim_at = to_timestamp(last_daily_claim / 1000.0)
+              WHERE last_daily_claim IS NOT NULL AND last_daily_claim > 0;
+            ALTER TABLE users DROP COLUMN last_daily_claim;
+          END IF;
         END IF;
       END$$;
     `;
@@ -223,17 +225,19 @@ async function migrate() {
       BEGIN
         IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
-        ) AND EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_inventory'
-            AND column_name = 'acquired_at'
-            AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
-          ALTER TABLE user_inventory ALTER COLUMN acquired_at DROP DEFAULT;
-          ALTER TABLE user_inventory
-            ALTER COLUMN acquired_at TYPE timestamptz
-            USING to_timestamp(acquired_at / 1000.0);
-          ALTER TABLE user_inventory ALTER COLUMN acquired_at SET DEFAULT now();
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'user_inventory'
+              AND column_name = 'acquired_at'
+              AND data_type IN ('bigint', 'integer', 'numeric')
+          ) THEN
+            ALTER TABLE user_inventory ALTER COLUMN acquired_at DROP DEFAULT;
+            ALTER TABLE user_inventory
+              ALTER COLUMN acquired_at TYPE timestamptz
+              USING to_timestamp(acquired_at / 1000.0);
+            ALTER TABLE user_inventory ALTER COLUMN acquired_at SET DEFAULT now();
+          END IF;
         END IF;
       END$$;
     `;
@@ -243,13 +247,15 @@ async function migrate() {
       BEGIN
         IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
-        ) AND NOT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_inventory' AND column_name = 'id'
         ) THEN
-          ALTER TABLE user_inventory DROP CONSTRAINT IF EXISTS user_inventory_pkey;
-          ALTER TABLE user_inventory ADD COLUMN id serial PRIMARY KEY;
-          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item ON user_inventory (user_id, guild_id, item_id);
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'user_inventory' AND column_name = 'id'
+          ) THEN
+            ALTER TABLE user_inventory DROP CONSTRAINT IF EXISTS user_inventory_pkey;
+            ALTER TABLE user_inventory ADD COLUMN id serial PRIMARY KEY;
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item ON user_inventory (user_id, guild_id, item_id);
+          END IF;
         END IF;
       END$$;
     `;
@@ -280,17 +286,19 @@ async function migrate() {
       BEGIN
         IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
-        ) AND EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_badges'
-            AND column_name = 'earned_at'
-            AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
-          ALTER TABLE user_badges ALTER COLUMN earned_at DROP DEFAULT;
-          ALTER TABLE user_badges
-            ALTER COLUMN earned_at TYPE timestamptz
-            USING to_timestamp(earned_at / 1000.0);
-          ALTER TABLE user_badges ALTER COLUMN earned_at SET DEFAULT now();
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'user_badges'
+              AND column_name = 'earned_at'
+              AND data_type IN ('bigint', 'integer', 'numeric')
+          ) THEN
+            ALTER TABLE user_badges ALTER COLUMN earned_at DROP DEFAULT;
+            ALTER TABLE user_badges
+              ALTER COLUMN earned_at TYPE timestamptz
+              USING to_timestamp(earned_at / 1000.0);
+            ALTER TABLE user_badges ALTER COLUMN earned_at SET DEFAULT now();
+          END IF;
         END IF;
       END$$;
     `;
@@ -300,18 +308,20 @@ async function migrate() {
       BEGIN
         IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
-        ) AND EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_badges'
-            AND column_name = 'expires_at'
-            AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
-          ALTER TABLE user_badges ALTER COLUMN expires_at DROP DEFAULT;
-          ALTER TABLE user_badges
-            ALTER COLUMN expires_at TYPE timestamptz
-            USING CASE WHEN expires_at IS NOT NULL AND expires_at > 0
-                       THEN to_timestamp(expires_at / 1000.0)
-                       ELSE NULL END;
+          IF EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'user_badges'
+              AND column_name = 'expires_at'
+              AND data_type IN ('bigint', 'integer', 'numeric')
+          ) THEN
+            ALTER TABLE user_badges ALTER COLUMN expires_at DROP DEFAULT;
+            ALTER TABLE user_badges
+              ALTER COLUMN expires_at TYPE timestamptz
+              USING CASE WHEN expires_at IS NOT NULL AND expires_at > 0
+                         THEN to_timestamp(expires_at / 1000.0)
+                         ELSE NULL END;
+          END IF;
         END IF;
       END$$;
     `;
@@ -321,24 +331,26 @@ async function migrate() {
       BEGIN
         IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
-        ) AND NOT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_badges' AND column_name = 'id'
         ) THEN
-          ALTER TABLE user_badges DROP CONSTRAINT IF EXISTS user_badges_pkey;
-          ALTER TABLE user_badges ADD COLUMN id serial PRIMARY KEY;
-          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge ON user_badges (user_id, guild_id, badge_id);
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_name = 'user_badges' AND column_name = 'id'
+          ) THEN
+            ALTER TABLE user_badges DROP CONSTRAINT IF EXISTS user_badges_pkey;
+            ALTER TABLE user_badges ADD COLUMN id serial PRIMARY KEY;
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge ON user_badges (user_id, guild_id, badge_id);
+          END IF;
         END IF;
       END$$;
     `;
 
-     // Ensure admin_users table exists
-     console.log('[migrate] Checking admin_users table...');
-     await sql`
+    // Ensure admin_users table exists
+    console.log('[migrate] Checking admin_users table...');
+    await sql`
        CREATE TYPE IF NOT EXISTS admin_role AS ENUM ('ADMIN', 'MODERATOR', 'VIEWER');
      `;
 
-     await sql`
+    await sql`
        DO $$
        BEGIN
          IF NOT EXISTS (
@@ -359,25 +371,25 @@ async function migrate() {
        END$$;
      `;
 
-     // Seed default admin user (only if admin_users table is empty)
-     console.log('[migrate] Seeding default admin user...');
-     const adminCount = await sql`SELECT COUNT(*) as count FROM admin_users`;
-     
-     if (adminCount && adminCount[0]?.count === 0) {
-       const bcrypt = await import('bcryptjs');
-       const hashedPassword = await bcrypt.hash('admin', 10);
-       await sql`
+    // Seed default admin user (only if admin_users table is empty)
+    console.log('[migrate] Seeding default admin user...');
+    const adminCount = await sql`SELECT COUNT(*) as count FROM admin_users`;
+
+    if (adminCount && adminCount[0]?.count === 0) {
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = await bcrypt.hash('admin', 10);
+      await sql`
          INSERT INTO admin_users (username, password_hash, role, is_active)
          VALUES ('admin', ${hashedPassword}, 'ADMIN', true)
          ON CONFLICT (username) DO NOTHING
        `;
-       console.log('[migrate] Default admin user created (username: admin, password: admin)');
-     } else {
-       console.log(`[migrate] Admin users already exist (${adminCount[0]?.count || 0}), skipping seed.`);
-     }
+      console.log('[migrate] Default admin user created (username: admin, password: admin)');
+    } else {
+      console.log(`[migrate] Admin users already exist (${adminCount[0]?.count || 0}), skipping seed.`);
+    }
 
-     // Populate shop items with defaults if empty
-     console.log('[migrate] Populating default shop items...');
+    // Populate shop items with defaults if empty
+    console.log('[migrate] Populating default shop items...');
     const itemCount = await sql`SELECT COUNT(*) as count FROM items`;
     if (itemCount[0].count === 0) {
       const shopItems = [
