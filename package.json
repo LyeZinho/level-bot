@@ -4,7 +4,12 @@
   "description": "Level Bot monorepo - Discord bot with admin panel",
   "private": true,
   "pnpm": {
-    "onlyBuiltDependencies": ["sharp", "zlib-sync", "@swc/core", "esbuild"]
+    "onlyBuiltDependencies": [
+      "sharp",
+      "zlib-sync",
+      "@swc/core",
+      "esbuild"
+    ]
   },
   "packageManager": "pnpm@10.32.1",
   "scripts": {
@@ -48,8 +53,12 @@
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.1.17",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.17",
     "@nestjs/schedule": "^6.1.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
+    "bcryptjs": "^3.0.3",
     "cache-manager": "^7.2.8",
     "cache-manager-redis-yet": "^5.1.5",
     "danbooru-sdk": "^1.0.0",
@@ -59,15 +68,20 @@
     "drizzle-orm": "^0.45.2",
     "joi": "^18.1.1",
     "necord": "^6.12.4",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "pg": "^8.20.0",
     "postgres": "^3.4.8",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "sharp": "^0.32.1"
+    "sharp": "^0.32.1",
+    "vite": "^8.0.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.16",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^25.5.0",
+    "@types/passport-jwt": "^4.0.1",
     "ts-loader": "^9.5.4",
     "tsx": "^4.21.0",
     "turbo": "^2.0.0",

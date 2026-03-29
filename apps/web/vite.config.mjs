@@ -9,7 +9,7 @@ export default defineConfig({
     allowedHosts: ['localhost', '127.0.0.1', 'crowbot.devscafe.org', 'api'],
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         changeOrigin: true,
       },
     },

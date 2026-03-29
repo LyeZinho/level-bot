@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Post, Query, Res, Body, HttpCode, UnauthorizedException } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { JWTPayload, UserRole } from '@level-bot/shared';
@@ -7,6 +7,18 @@ import { Public } from './decorators/public.decorator';
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Post('login')
+  @Public()
+  @HttpCode(200)
+  async login(@Body() body: { username: string; password: string }) {
+    if (!body.username || !body.password) {
+      throw new UnauthorizedException('Username and password required');
+    }
+
+    const user = await this.authService.validateAdminUser(body.username, body.password);
+    return this.authService.loginAdmin(user);
+  }
 
   @Get('discord/callback')
   @Public()

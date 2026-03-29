@@ -332,8 +332,52 @@ async function migrate() {
       END$$;
     `;
 
-    // Populate shop items with defaults if empty
-    console.log('[migrate] Populating default shop items...');
+     // Ensure admin_users table exists
+     console.log('[migrate] Checking admin_users table...');
+     await sql`
+       CREATE TYPE IF NOT EXISTS admin_role AS ENUM ('ADMIN', 'MODERATOR', 'VIEWER');
+     `;
+
+     await sql`
+       DO $$
+       BEGIN
+         IF NOT EXISTS (
+           SELECT 1 FROM information_schema.tables WHERE table_name = 'admin_users'
+         ) THEN
+           CREATE TABLE admin_users (
+             id serial PRIMARY KEY,
+             username text UNIQUE NOT NULL,
+             password_hash text NOT NULL,
+             role admin_role DEFAULT 'VIEWER' NOT NULL,
+             is_active boolean DEFAULT true,
+             created_at timestamptz DEFAULT now(),
+             updated_at timestamptz DEFAULT now()
+           );
+           CREATE INDEX idx_admin_users_username ON admin_users (username);
+           CREATE INDEX idx_admin_users_role ON admin_users (role);
+         END IF;
+       END$$;
+     `;
+
+     // Seed default admin user (only if admin_users table is empty)
+     console.log('[migrate] Seeding default admin user...');
+     const adminCount = await sql`SELECT COUNT(*) as count FROM admin_users`;
+     
+     if (adminCount && adminCount[0]?.count === 0) {
+       const bcrypt = await import('bcryptjs');
+       const hashedPassword = await bcrypt.hash('admin', 10);
+       await sql`
+         INSERT INTO admin_users (username, password_hash, role, is_active)
+         VALUES ('admin', ${hashedPassword}, 'ADMIN', true)
+         ON CONFLICT (username) DO NOTHING
+       `;
+       console.log('[migrate] Default admin user created (username: admin, password: admin)');
+     } else {
+       console.log(`[migrate] Admin users already exist (${adminCount[0]?.count || 0}), skipping seed.`);
+     }
+
+     // Populate shop items with defaults if empty
+     console.log('[migrate] Populating default shop items...');
     const itemCount = await sql`SELECT COUNT(*) as count FROM items`;
     if (itemCount[0].count === 0) {
       const shopItems = [

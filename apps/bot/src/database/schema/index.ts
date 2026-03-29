@@ -7,3 +7,4 @@ export * from './badges';
 export * from './user-badges';
 export * from './missions';
 export * from './user-missions';
+export * from './admin-users';
