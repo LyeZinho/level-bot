@@ -6,3 +6,4 @@ dist/
 .worktrees/
 worktrees/
 
+package-lock.json
