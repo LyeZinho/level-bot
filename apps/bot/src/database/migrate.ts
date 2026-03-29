@@ -52,9 +52,11 @@ async function migrate() {
             AND column_name = 'acquired_at'
             AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
+          ALTER TABLE user_inventory ALTER COLUMN acquired_at DROP DEFAULT;
           ALTER TABLE user_inventory
             ALTER COLUMN acquired_at TYPE timestamptz
             USING to_timestamp(acquired_at);
+          ALTER TABLE user_inventory ALTER COLUMN acquired_at SET DEFAULT now();
         END IF;
       END$$;
     `;
@@ -68,9 +70,11 @@ async function migrate() {
             AND column_name = 'earned_at'
             AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
+          ALTER TABLE user_badges ALTER COLUMN earned_at DROP DEFAULT;
           ALTER TABLE user_badges
             ALTER COLUMN earned_at TYPE timestamptz
             USING to_timestamp(earned_at / 1000.0);
+          ALTER TABLE user_badges ALTER COLUMN earned_at SET DEFAULT now();
         END IF;
       END$$;
     `;
@@ -84,6 +88,7 @@ async function migrate() {
             AND column_name = 'expires_at'
             AND data_type IN ('bigint', 'integer', 'numeric')
         ) THEN
+          ALTER TABLE user_badges ALTER COLUMN expires_at DROP DEFAULT;
           ALTER TABLE user_badges
             ALTER COLUMN expires_at TYPE timestamptz
             USING CASE WHEN expires_at IS NOT NULL AND expires_at > 0
