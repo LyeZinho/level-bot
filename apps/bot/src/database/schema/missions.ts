@@ -1,15 +1,19 @@
-import { pgTable, serial, varchar, bigint, text, timestamp, index, foreignKey } from 'drizzle-orm/pg-core';
+import { pgTable, serial, varchar, bigint, text, timestamp, integer, boolean, index, foreignKey } from 'drizzle-orm/pg-core';
 import { badges } from './badges';
 
 export const missions = pgTable(
   'missions',
   {
     missionId: serial('mission_id').primaryKey(),
-    missionType: varchar('mission_type', { length: 50 }).notNull(),
-    targetValue: bigint('target_value', { mode: 'number' }).notNull(),
-    rewardBadgeId: bigint('reward_badge_id', { mode: 'number' }).notNull(),
-    rewardCoins: bigint('reward_coins', { mode: 'number' }).default(0).notNull(),
+    name: varchar('name', { length: 100 }).notNull(),
     description: text('description'),
+    missionType: varchar('mission_type', { length: 50 }).notNull(),
+    targetValue: integer('target_value').notNull(),
+    rewardBadgeId: integer('reward_badge_id'),
+    rewardCoins: integer('reward_coins').default(0).notNull(),
+    isActive: boolean('is_active').default(true).notNull(),
+    isRepeatable: boolean('is_repeatable').default(false).notNull(),
+    expiresAt: timestamp('expires_at'),
     createdAt: timestamp('created_at').defaultNow().notNull(),
   },
   (table) => ({
