@@ -33,12 +33,18 @@ async function migrate() {
       DO $$
       BEGIN
         IF NOT EXISTS (
-          SELECT 1 FROM information_schema.columns
-          WHERE table_name = 'user_inventory' AND column_name = 'id'
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
         ) THEN
-          ALTER TABLE user_inventory DROP CONSTRAINT IF EXISTS user_inventory_pkey;
-          ALTER TABLE user_inventory ADD COLUMN id serial;
-          ALTER TABLE user_inventory ADD PRIMARY KEY (id);
+          CREATE TABLE user_inventory (
+            id serial PRIMARY KEY,
+            user_id varchar(30) NOT NULL,
+            guild_id varchar(30) NOT NULL,
+            item_id integer NOT NULL,
+            quantity integer DEFAULT 1,
+            acquired_at timestamptz DEFAULT now() NOT NULL
+          );
+          CREATE UNIQUE INDEX unique_user_item ON user_inventory (user_id, guild_id, item_id);
+          CREATE INDEX idx_user_inventory_user_id ON user_inventory (user_id);
         END IF;
       END$$;
     `;
@@ -57,8 +63,44 @@ async function migrate() {
           ALTER TABLE user_inventory ALTER COLUMN acquired_at DROP DEFAULT;
           ALTER TABLE user_inventory
             ALTER COLUMN acquired_at TYPE timestamptz
-            USING to_timestamp(acquired_at);
+            USING to_timestamp(acquired_at / 1000.0);
           ALTER TABLE user_inventory ALTER COLUMN acquired_at SET DEFAULT now();
+        END IF;
+      END$$;
+    `;
+
+    await sql`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
+        ) AND NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'user_inventory' AND column_name = 'id'
+        ) THEN
+          ALTER TABLE user_inventory DROP CONSTRAINT IF EXISTS user_inventory_pkey;
+          ALTER TABLE user_inventory ADD COLUMN id serial PRIMARY KEY;
+          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item ON user_inventory (user_id, guild_id, item_id);
+        END IF;
+      END$$;
+    `;
+
+    await sql`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
+        ) THEN
+          CREATE TABLE user_badges (
+            id serial PRIMARY KEY,
+            user_id varchar(30) NOT NULL,
+            guild_id varchar(30) NOT NULL,
+            badge_id integer NOT NULL,
+            earned_at timestamptz DEFAULT now() NOT NULL,
+            expires_at timestamptz
+          );
+          CREATE UNIQUE INDEX unique_user_badge ON user_badges (user_id, guild_id, badge_id);
+          CREATE INDEX idx_user_badges_user_id ON user_badges (user_id);
         END IF;
       END$$;
     `;
@@ -108,22 +150,14 @@ async function migrate() {
       DO $$
       BEGIN
         IF EXISTS (
-          SELECT 1 FROM information_schema.tables WHERE table_name = 'user_inventory'
-        ) THEN
-          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_item
-            ON user_inventory (user_id, guild_id, item_id);
-        END IF;
-      END$$;
-    `;
-
-    await sql`
-      DO $$
-      BEGIN
-        IF EXISTS (
           SELECT 1 FROM information_schema.tables WHERE table_name = 'user_badges'
+        ) AND NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'user_badges' AND column_name = 'id'
         ) THEN
-          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge
-            ON user_badges (user_id, guild_id, badge_id);
+          ALTER TABLE user_badges DROP CONSTRAINT IF EXISTS user_badges_pkey;
+          ALTER TABLE user_badges ADD COLUMN id serial PRIMARY KEY;
+          CREATE UNIQUE INDEX IF NOT EXISTS unique_user_badge ON user_badges (user_id, guild_id, badge_id);
         END IF;
       END$$;
     `;
