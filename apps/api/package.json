@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Level Bot admin panel API - NestJS backend",
   "main": "dist/main.js",
-  "type": "module",
   "engines": {
     "node": ">=20.0.0"
   },
