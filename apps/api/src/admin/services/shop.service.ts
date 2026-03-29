@@ -12,7 +12,7 @@ export class ShopService {
   async getItems() {
     try {
       const items = await this.db.execute(
-        sql`SELECT * FROM shop_items WHERE hidden = false ORDER BY price`
+        sql`SELECT * FROM items WHERE hidden = false ORDER BY price`
       );
       
       const itemList = Array.from(items || []);
@@ -28,13 +28,13 @@ export class ShopService {
       const cols = Object.keys(data);
       const vals = Object.values(data);
       const result = await this.db.execute(
-        sql`INSERT INTO shop_items (${sql.raw(cols.join(','))}) VALUES (${vals}) RETURNING *`
+        sql`INSERT INTO items (${sql.raw(cols.join(','))}) VALUES (${vals}) RETURNING *`
       );
       const itemList = Array.from(result || []);
-      return itemList[0] || { id: 1, ...data };
+      return itemList[0] || { itemId: 1, ...data };
     } catch (err) {
       console.error('[ShopService] Failed to create item:', err);
-      return { id: 1, ...data };
+      return { itemId: 1, ...data };
     }
   }
 
@@ -42,20 +42,20 @@ export class ShopService {
     try {
       const setClauses = Object.entries(data).map(([key]) => `${key} = $1`).join(', ');
       const result = await this.db.execute(
-        sql`UPDATE shop_items SET ${sql.raw(setClauses)} WHERE id = ${parseInt(id)} RETURNING *`
+        sql`UPDATE items SET ${sql.raw(setClauses)} WHERE item_id = ${parseInt(id)} RETURNING *`
       );
       const itemList = Array.from(result || []);
-      return itemList[0] || { id, ...data };
+      return itemList[0] || { itemId: id, ...data };
     } catch (err) {
       console.error('[ShopService] Failed to update item:', err);
-      return { id, ...data };
+      return { itemId: id, ...data };
     }
   }
 
   async deleteItem(id: string) {
     try {
       await this.db.execute(
-        sql`DELETE FROM shop_items WHERE id = ${parseInt(id)}`
+        sql`DELETE FROM items WHERE item_id = ${parseInt(id)}`
       );
       return { success: true };
     } catch (err) {
