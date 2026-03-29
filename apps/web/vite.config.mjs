@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     port: 5173,
     host: '0.0.0.0',
+    allowedHosts: ['localhost', '127.0.0.1', 'crowbot.devscafe.org', 'api'],
     proxy: {
       '/api': {
         target: 'http://localhost:3000',
@@ -18,5 +19,6 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
     middlewareMode: false,
+    allowedHosts: ['localhost', '127.0.0.1', 'crowbot.devscafe.org', 'api'],
   },
 });
