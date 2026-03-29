@@ -60,4 +60,4 @@ EXPOSE 5173
 
 # Serve the built static files with vite preview
 WORKDIR /app/apps/web
-CMD ["/app/node_modules/.bin/vite", "preview", "--host", "0.0.0.0", "--port", "5173"]
+CMD ["node", "/app/node_modules/.bin/vite", "preview", "--host", "0.0.0.0", "--port", "5173", "--strictPort"]
