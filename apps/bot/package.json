@@ -31,6 +31,7 @@
     "necord": "^6.12.4",
     "pg": "^8.20.0",
     "postgres": "^3.4.8",
+    "sharp": "^0.32.1",
     "zlib-sync": "^0.1.9"
   },
   "devDependencies": {

@@ -83,9 +83,6 @@ importers:
       rxjs:
         specifier: ^7.8.2
         version: 7.8.2
-      sharp:
-        specifier: ^0.32.1
-        version: 0.32.6
       vite:
         specifier: ^8.0.3
         version: 8.0.3(@emnapi/core@1.9.1)(@emnapi/runtime@1.9.1)(@types/node@25.5.0)(esbuild@0.27.4)(terser@5.46.1)(tsx@4.21.0)
@@ -262,6 +259,9 @@ importers:
       postgres:
         specifier: ^3.4.8
         version: 3.4.8
+      sharp:
+        specifier: ^0.32.1
+        version: 0.32.6
       zlib-sync:
         specifier: ^0.1.9
         version: 0.1.10
