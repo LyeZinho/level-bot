@@ -10,6 +10,9 @@ ENV NODE_ENV=development
 # Enable corepack for pnpm (comes with Node.js 16+)
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
+# Install build tools needed for native modules in the workspace (zlib-sync, sharp)
+RUN apk add --no-cache python3 make g++
+
 # Copy all workspace manifests and config first
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json turbo.json ./
 COPY .npmrc ./
