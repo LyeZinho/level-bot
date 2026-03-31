@@ -42,6 +42,9 @@ export class LevelTextCommand {
       const xp = parseInt(levelInfo.user.xp);
       const coins = parseInt(levelInfo.user.coins);
 
+      const avatarUrl = targetUser.displayAvatarURL({ extension: 'png', size: 256 });
+      const avatarDataUri = avatarUrl ? await this.imageService.fetchImageAsDataUri(avatarUrl) : null;
+
       const cardSvg = this.svgGenerator.generateLevelCard({
         username: targetUser.username,
         level,
@@ -53,7 +56,7 @@ export class LevelTextCommand {
         },
         messages: levelInfo.user.messages || 0,
         voiceTime: levelInfo.user.voiceTime || 0,
-        avatarURL: targetUser.displayAvatarURL({ extension: 'png', size: 256 }) || null,
+        avatarURL: avatarDataUri,
       });
 
       const pngBuffer = await this.imageService.convertSvgToPng(cardSvg);

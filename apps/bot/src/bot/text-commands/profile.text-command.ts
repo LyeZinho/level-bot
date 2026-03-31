@@ -46,6 +46,9 @@ export class ProfileTextCommand {
 
       const nextLevelXp = this.levelingService.getXPForLevel(level + 1);
 
+      const avatarUrl = targetUser.displayAvatarURL({ extension: 'png', size: 256 });
+      const avatarDataUri = avatarUrl ? await this.imageService.fetchImageAsDataUri(avatarUrl) : null;
+
       const cardSvg = this.svgGenerator.generateProfileCard({
         username: targetUser.username,
         level,
@@ -59,7 +62,7 @@ export class ProfileTextCommand {
         voiceHours: Math.floor((levelInfo.user.voiceTime || 0) / 3600),
         voiceMinutes: Math.floor(((levelInfo.user.voiceTime || 0) % 3600) / 60),
         joinedAt: 0,
-        avatarURL: targetUser.displayAvatarURL({ extension: 'png', size: 256 }) || null,
+        avatarURL: avatarDataUri,
         badges: userBadges.map(b => ({ icon: b.badge.image_path || '' })),
       });
 

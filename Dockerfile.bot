@@ -39,6 +39,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install fonts so Sharp/librsvg can render SVG text (DejaVu Sans is the font used in card templates)
+RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f
+
 # Copy root node_modules (shared third-party packages, includes native binaries)
 COPY --from=builder /app/node_modules ./node_modules
 

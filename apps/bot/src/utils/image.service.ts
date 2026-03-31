@@ -15,6 +15,15 @@ export class ImageService {
     }
   }
 
+  async fetchImageAsDataUri(url: string): Promise<string | null> {
+    try {
+      const buffer = await this.fetchImage(url);
+      return `data:image/png;base64,${buffer.toString('base64')}`;
+    } catch {
+      return null;
+    }
+  }
+
   async fetchImage(url: string): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const protocol = url.startsWith('https') ? https : http;

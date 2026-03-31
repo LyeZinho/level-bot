@@ -44,12 +44,14 @@ export class RankingTextCommand {
             // silent fail
           }
         }
+        const avatarUrl = discordUser?.displayAvatarURL({ extension: 'png', size: 128 }) ?? null;
+        const avatarDataUri = avatarUrl ? await this.imageService.fetchImageAsDataUri(avatarUrl) : null;
         return {
           username: discordUser?.username || 'Desconhecido',
           level: this.levelingService.calculateLevel(parseInt(r.xp)),
           xp: parseInt(r.xp),
           rank: index + 1,
-          avatarURL: discordUser?.displayAvatarURL({ extension: 'png', size: 128 }) || null
+          avatarURL: avatarDataUri,
         };
       }));
 
