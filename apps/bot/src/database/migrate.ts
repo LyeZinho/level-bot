@@ -347,7 +347,12 @@ async function migrate() {
     // Ensure admin_users table exists
     console.log('[migrate] Checking admin_users table...');
     await sql`
-       CREATE TYPE IF NOT EXISTS admin_role AS ENUM ('ADMIN', 'MODERATOR', 'VIEWER');
+       DO $$
+       BEGIN
+         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'admin_role') THEN
+           CREATE TYPE admin_role AS ENUM ('ADMIN', 'MODERATOR', 'VIEWER');
+         END IF;
+       END$$;
      `;
 
     await sql`
